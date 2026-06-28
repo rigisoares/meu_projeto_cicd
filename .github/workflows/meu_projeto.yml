@@ -3,7 +3,7 @@ name: meu primeiro projeto cicd
 on:
     push:
         branches:
-            -main
+            -master
 
 jobs:
     print-test:
