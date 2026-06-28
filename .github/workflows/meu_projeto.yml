@@ -1,9 +1,9 @@
-name: meu primeiro projeto cicd
+name: meu segundo teste cicd
 
 on:
     push:
         branches:
-            -master
+            - master
 
 jobs:
     print-test:
