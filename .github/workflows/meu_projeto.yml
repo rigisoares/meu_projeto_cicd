@@ -1,0 +1,12 @@
+name: meu primeiro projeto cicd
+
+on:
+    push:
+        branches:
+            -main
+
+jobs:
+    print-test:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "AGORA FOI! O Actions encontrou o arquivo!"
