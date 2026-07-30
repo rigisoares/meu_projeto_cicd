@@ -25,7 +25,7 @@ jobs:
       - name: Executar criação do banco EMPRESA
         env:
           DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
-          DB_USER: ${{ secrets.DEVELOPER-USER }}
+          DB_USER: ${{ secrets.DEVELOPER_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -d "master" -i Script/init.sql -C
