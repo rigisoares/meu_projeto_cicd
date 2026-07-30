@@ -1,12 +1,46 @@
-name: meu segundo teste cicd
+name: CI/CD - Implantar e Consultar Banco de Dados no RDS AWS
 
 on:
-    push:
-        branches:
-            - master
+  push:
+    branches:
+      - master
 
 jobs:
-    print-test:
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo "AGORA FOI! O Actions encontrou o arquivo!"
+  executar-script-sql:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Instala a ferramenta sqlcmd no ambiente do GitHub Actions
+      - name: Instalar SQL Server Tools (sqlcmd)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mssql-tools18 unixodbc-dev
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
+
+      # 3. Executa o script SQL para criar o banco/tabela no RDS
+      - name: Executar script DDL/DML no RDS
+        env:
+          DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          sed -i "s/\$(DB_NAME)/$DB_NAME/g" Script/init.sql
+          sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -i scripts/init.sql -C
+
+      # 4. PASSO NOVO: Faz o SELECT e imprime os dados diretamente no terminal do GitHub
+      - name: Visualizar dados no log do GitHub Actions
+        env:
+          DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          echo "=================================================="
+          echo "📊 CONSULTANDO REGISTROS DO BANCO DE DADOS RDS"
+          echo "=================================================="
+          sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -d "$DB_NAME" -Q "SELECT * FROM LogsExecucao;" -C
