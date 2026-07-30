@@ -1,4 +1,4 @@
-name: CI/CD - Implantar e Consultar Banco de Dados no RDS AWS
+name: CI/CD - Criar Banco de Dados no RDS AWS
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  executar-script-sql:
+  criar-banco-de-dados:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,33 +14,18 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2. Instala a ferramenta sqlcmd no ambiente do GitHub Actions
-      - name: Instalar SQL Server Tools (sqlcmd)
+      # 2. Instala a ferramenta sqlcmd no runner do GitHub
+      - name: Instalar SQL Server Tools
         run: |
           sudo apt-get update
           sudo apt-get install -y mssql-tools18 unixodbc-dev
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
-      # 3. Executa o script SQL para criar o banco/tabela no RDS
-      - name: Executar script DDL/DML no RDS
+      # 3. Conecta no RDS (banco master) e cria o banco EMPRESA
+      - name: Executar criação do banco EMPRESA
         env:
           DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
         run: |
-          sed -i "s/\$(DB_NAME)/$DB_NAME/g" Script/init.sql
-          sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -i Script/init.sql -C
-
-      # 4. PASSO NOVO: Faz o SELECT e imprime os dados diretamente no terminal do GitHub
-      - name: Visualizar dados no log do GitHub Actions
-        env:
-          DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-        run: |
-          echo "=================================================="
-          echo "📊 CONSULTANDO REGISTROS DO BANCO DE DADOS RDS"
-          echo "=================================================="
-          sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -d "$DB_NAME" -Q "SELECT * FROM LogsExecucao;" -C
+          sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -d "master" -i Script/init.sql -C
