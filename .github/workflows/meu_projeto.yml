@@ -28,4 +28,4 @@ jobs:
           DB_USER: ${{ secrets.DEVELOPER_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          sqlcmd -S "tcp:$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -d "master" -i Script/init.sql -C
+          sqlcmd -S "$DB_ENDPOINT" -U "$DB_USER" -P "$DB_PASSWORD" -d "master" -i Script/init.sql -C
