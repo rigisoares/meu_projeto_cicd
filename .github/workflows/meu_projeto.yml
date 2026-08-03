@@ -3,7 +3,7 @@ name: CI/CD - Criar Banco de Dados no RDS AWS
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   criar-banco-de-dados:
